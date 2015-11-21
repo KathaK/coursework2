@@ -1,7 +1,8 @@
-from Flask import Flask
+from flask import Flask
 
 
 app = Flask(__name__)
+app.config.from_envvar("NAPIER_KEYSERVER_CONFIG")
 
 @app.route("/")
 def mainpage():
@@ -10,7 +11,7 @@ def mainpage():
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
-
+    return "Register"
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
