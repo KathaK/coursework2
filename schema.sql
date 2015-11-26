@@ -7,8 +7,10 @@ create table users (
     pubkey text not null
 );
 
+/* user is friends with user2  */
 drop table if exists friends;
 create table friends (
-    username text primary key,
-    friendlist text
+    user1 text,
+    user2 text,
+    PRIMARY KEY (user1, user2)
 );

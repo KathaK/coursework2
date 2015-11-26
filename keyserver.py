@@ -49,9 +49,10 @@ def fill_db():
         for line in file:
             line = line.rstrip("\n")
             print(line.split("-"))
-            values = line.split("-")
-            q = "INSERT INTO friends (username, friendlist) VALUES (?,?)"
-            query_db(q, values)
+	    user1, user2 = line.split("-")
+	    q = "INSERT INTO friends (user1, user2) VALUES (?,?)"
+	    query_db(q, [user1, user2])
+	    query_db(q, [user2, user1])
         db.commit()
 
 def init_db():
