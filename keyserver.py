@@ -1,4 +1,4 @@
-from flask import Flask, g, render_template
+from flask import Flask, g, render_template, session, render_template
 import sqlite3
 from Crypto.Hash import SHA256
 from Crypto.Cipher import ARC4
@@ -68,7 +68,7 @@ def init_db():
 
 @app.route("/")
 def mainpage():
-    return "mainpage"#render_template("mainpage.html")
+    return render_template("mainpage.html")
 
 
 @app.route("/register", methods=["GET", "POST"])
