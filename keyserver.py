@@ -1,6 +1,8 @@
 from flask import Flask, g, render_template
 import sqlite3
 from Crypto.Hash import SHA256
+from Crypto.Cipher import ARC4
+from base64 import b64encode, b64decode
 
 app = Flask(__name__)
 app.config.from_envvar("NAPIER_KEYSERVER_CONFIG")
@@ -38,6 +40,7 @@ def fill_db():
             line = line.rstrip("\n")
             print(line.split("-"))
             values = line.split("-")
+	    values[3] = b64encode(ARC4.new(values[1]).encrypt(values[3]))
 	    values[1] = SHA256.new(values[1]).hexdigest()
             q = "INSERT INTO users (username, pwdhash, realname, privkeyenc, pubkey) VALUES (?,?,?,?,?)"
             query_db(q, values)
