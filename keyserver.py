@@ -1,4 +1,4 @@
-from flask import Flask, g, render_template, session, render_template, url_for, flash
+from flask import Flask, g, render_template, session, render_template, url_for, flash, request, redirect
 import sqlite3
 from Crypto.Hash import SHA256
 from Crypto.Cipher import ARC4
