@@ -1,4 +1,4 @@
-from flask import Flask, g, render_template, session, render_template
+from flask import Flask, g, render_template, session, render_template, url_for, flash
 import sqlite3
 from Crypto.Hash import SHA256
 from Crypto.Cipher import ARC4
@@ -82,16 +82,12 @@ def login():
         username = request.form["username"]
         password = request.form["password"]
         
-        validUser = False# TODO search for user in database        
-        if validUser:
+	pwdhash = query_db("SELECT pwdhash FROM users WHERE username = ?", [username], one=True)[0]
+	if pwdhash and SHA256.new(password).hexdigest() == pwdhash:        
             session["logged_in"] = True
-            flash("Welcome " + username + " to NapierKeyServer")
-            return redirect(url_for("")) # TODO
+            return redirect(url_for("show_profile"))
         else:
-            error = "Invalid user credentials!"
-    else:
-	app.logger.error("Login request is not POST method")
-        error = "Invalid request."
+	    print(error)
     
     return render_template("login.html", error=error)
 
@@ -101,6 +97,10 @@ def logout():
     session.pop("logged_in", None)
     flash("You are now logged out")
     return redirect(url_for("login"))
+
+@app.route("/profile")
+def show_profile():
+    return render_template("profile.html");
 
 @app.errorhandler(404)
 def page_not_found(error):

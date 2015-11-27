@@ -2,3 +2,4 @@ HOST = "0.0.0.0"
 PORT = 5000
 DATABASE = "data/keyserver.db"
 DEBUG = True
+SECRET_KEY = 's3cr3t'
