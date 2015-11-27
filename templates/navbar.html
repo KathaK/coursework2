@@ -60,7 +60,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="{{ url_for("mainpage") }}"><img src="static/logo.png" class="img-rounded" alt="Napier PublicKeyServer" height="40px"></a>
+		<a class="navbar-brand" href="{{ url_for("mainpage") }}"><img src="{{ url_for("static", filename="logo.png") }}" class="img-rounded" alt="Napier KeyServer" height="40px"></a>               
             </div>
             <div id="navbar" class="collapse navbar-collapse">
                 <ul class="nav navbar-nav navbar-right">
