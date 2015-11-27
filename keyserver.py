@@ -73,7 +73,11 @@ def mainpage():
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
-    return "Register"
+    error = None
+    if request.method == "POST":
+        return "TODO"
+
+    return render_template("register.html", error=error)
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -101,6 +105,10 @@ def logout():
 @app.route("/profile")
 def show_profile():
     return render_template("profile.html");
+
+@app.route("/info")
+def info():
+    return render_template("info.html")
 
 @app.errorhandler(404)
 def page_not_found(error):
