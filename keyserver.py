@@ -1,5 +1,6 @@
 from flask import Flask, g, render_template, session, render_template, url_for, flash, request, redirect
 import sqlite3
+import re
 from Crypto.Hash import SHA256
 from Crypto.Cipher import ARC4
 from Crypto.PublicKey import RSA
@@ -87,27 +88,30 @@ def register():
             accept = request.form["accept"]
 
             q = "SELECT username FROM users WHERE username = ?"
-            if username and not query_db(q, [username], one = True):
-                if password and repeat_password and password == repeat_password:
-                    
-                    pwdhash = SHA256.new(password).hexdigest()
-                    
-                    rnd = Random.new().read
-                    key = RSA.generate(1024, rnd)
-                    pub = key.publickey().exportKey()
-                    privenc = b64encode(ARC4.new(password).encrypt(key.exportKey()))
-          
-                    realname = first_name + " " + last_name
-                    
-                    q = "INSERT INTO users (username, pwdhash, realname, privkeyenc, pubkey) VALUES (?,?,?,?,?)"
-                    query_db(q, [username, pwdhash, realname, privenc, pub])
-                    get_db().commit()
+	    if not error and username and not query_db(q, [username], one = True):
+                if password and re.match(r"[A-Za-z0-9@#$%^&+=]+", password):
+                    if repeat_password and password == repeat_password:
+                        
+                        pwdhash = SHA256.new(password).hexdigest()
+                        
+                        rnd = Random.new().read
+                        key = RSA.generate(1024, rnd)
+                        pub = key.publickey().exportKey()
+                        privenc = b64encode(ARC4.new(password).encrypt(key.exportKey()))
+              
+                        realname = first_name + " " + last_name
+                        
+                        q = "INSERT INTO users (username, pwdhash, realname, privkeyenc, pubkey) VALUES (?,?,?,?,?)"
+                        query_db(q, [username, pwdhash, realname, privenc, pub])
+                        get_db().commit()
 
-                    session["logged_in"] = True
-		    session["user"] = username
-                    return redirect(url_for("show_profile"))
+                        session["logged_in"] = True
+                        session["user"] = username
+                        return redirect(url_for("show_profile"))
+                    else:
+                        error = "Passwords do not match."
                 else:
-                    error = "Passwords do not match."
+                    error = "Password must only contain letters A-Z/a-z, numbers 0-9 and the following signs @#$%^&+=""Passwords do not match."
             else:
                 error = "Username already taken."
        else:
@@ -171,4 +175,4 @@ def page_not_found(error):
 
 if __name__ == "__main__":
     app.logger.debug("Running keyserver on http://" + app.config["HOST"] + ":" + str(app.config["PORT"]))
-    app.run(app.config["HOST"], app.config["PORT"])
+    app.run(host=app.config["HOST"], port=app.config["PORT"])
