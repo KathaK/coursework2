@@ -75,9 +75,9 @@ def mainpage():
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
-    error = None
-    if request.method == "POST":
-         if "accept" in request.form:
+   error = None
+   if request.method == "POST":
+       if "accept" in request.form:
             username = request.form["username"]
             password = request.form["password"]
             repeat_password = request.form["repeat_password"]
@@ -109,10 +109,10 @@ def register():
                     error = "Passwords do not match."
             else:
                 error = "Username already taken."
-        else:
+       else:
             error = "You have to accept the terms and conditions of Napier Public Key Server"
 
-    return render_template("register.html", error=error)
+   return render_template("register.html", error=error)
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -124,8 +124,10 @@ def login():
 	pwdhash = query_db("SELECT pwdhash FROM users WHERE username = ?", [username], one=True)[0]
 	if pwdhash and SHA256.new(password).hexdigest() == pwdhash:        
             session["logged_in"] = True
+	    session["user"] = username
             return redirect(url_for("show_profile"))
         else:
+	    error = "Invalid user credentials!"
 	    print(error)
     
     return render_template("login.html", error=error)
@@ -134,6 +136,7 @@ def login():
 @app.route("/logout")
 def logout():
     session.pop("logged_in", None)
+    session.pop("user", None)
     flash("You are now logged out")
     return redirect(url_for("login"))
 
