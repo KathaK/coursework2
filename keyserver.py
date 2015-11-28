@@ -104,6 +104,7 @@ def register():
                     get_db().commit()
 
                     session["logged_in"] = True
+		    session["user"] = username
                     return redirect(url_for("show_profile"))
                 else:
                     error = "Passwords do not match."
@@ -121,14 +122,17 @@ def login():
         username = request.form["username"]
         password = request.form["password"]
         
-	pwdhash = query_db("SELECT pwdhash FROM users WHERE username = ?", [username], one=True)[0]
-	if pwdhash and SHA256.new(password).hexdigest() == pwdhash:        
-            session["logged_in"] = True
-	    session["user"] = username
-            return redirect(url_for("show_profile"))
+	res = query_db("SELECT pwdhash FROM users WHERE username = ?", [username], one=True)
+        if res:
+            pwdhash = res[0]
+            if pwdhash and SHA256.new(password).hexdigest() == pwdhash:
+                session["logged_in"] = True
+                session["user"] = username
+                return redirect(url_for("show_profile"))
+            else:
+                error = "Invalid user credentials!"
         else:
 	    error = "Invalid user credentials!"
-	    print(error)
     
     return render_template("login.html", error=error)
 
@@ -142,7 +146,20 @@ def logout():
 
 @app.route("/profile")
 def show_profile():
-    return render_template("profile.html");
+    if not session.get("logged_in"):
+        redirect(url_for("login"))
+
+    user = session.get("user")
+
+    q = "SELECT realname, pubkey FROM users WHERE username = ?"
+    realname, pubkey = query_db(q, [user], one=True)
+
+    q = "SELECT user2 FROM friends WHERE user1 = ?"
+    res = query_db(q, [user])
+    friends = [friend[0] for friend in res]
+
+    return render_template("profile.html", friends=friends, realname=realname, pubkey=pubkey);
+
 
 @app.route("/info")
 def info():

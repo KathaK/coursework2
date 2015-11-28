@@ -4,7 +4,13 @@
 {% endblock %}
 {% block center %}
 
-Profile
+<h2>{{ session.user }}</h2>
+<hr>
+<h4>{{ realname }}</h4>
+<hr>
+<div>{{ pubkey }}</div>
+<hr>
+
 
 {% endblock %}
 
@@ -13,6 +19,9 @@ Profile
         <p>ADS</p>
     </div>
     <div class="well">
-        <p>ADS</p>
+	<p>Friends:</p>
+        {% for friend in friends %}
+        <ul>{{ friend }}</ul>
+        {% endfor %}        
     </div>
 {% endblock %}
