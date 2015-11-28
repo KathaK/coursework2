@@ -3,6 +3,7 @@ create table users (
     username text primary key,
     pwdhash text not null,
     realname text not null,
+    gender text not null,
     privkeyenc text not null,
     pubkey text not null
 );

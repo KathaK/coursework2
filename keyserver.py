@@ -43,9 +43,16 @@ def fill_db():
             line = line.rstrip("\n")
             print(line.split("-"))
             values = line.split("-")
-	    values[3] = b64encode(ARC4.new(values[1]).encrypt(values[3]))
+	    rnd = Random.new().read
+            key = RSA.generate(1024, rnd)
+            pub = key.publickey().exportKey()
+            privenc = b64encode(ARC4.new(values[1]).encrypt(key.exportKey()))
+            values.append(privenc)
+            values.append(pub)
 	    values[1] = SHA256.new(values[1]).hexdigest()
-            q = "INSERT INTO users (username, pwdhash, realname, privkeyenc, pubkey) VALUES (?,?,?,?,?)"
+
+            print values
+            q = "INSERT INTO users (username, pwdhash, realname, gender, privkeyenc, pubkey) VALUES (?,?,?,?,?,?)"
             query_db(q, values)
         db.commit()
         file = open("exampledata/friends.example", "r")
@@ -78,44 +85,51 @@ def mainpage():
 def register():
    error = None
    if request.method == "POST":
+       print request.form["gender"]
        if "accept" in request.form:
-            username = request.form["username"]
-            password = request.form["password"]
-            repeat_password = request.form["repeat_password"]
-            first_name = request.form["first_name"]
-            last_name = request.form["last_name"]
-        
-            accept = request.form["accept"]
 
-            q = "SELECT username FROM users WHERE username = ?"
-	    if not error and username and not query_db(q, [username], one = True):
-                if password and re.match(r"[A-Za-z0-9@#$%^&+=]+", password):
-                    if repeat_password and password == repeat_password:
-                        
-                        pwdhash = SHA256.new(password).hexdigest()
-                        
-                        rnd = Random.new().read
-                        key = RSA.generate(1024, rnd)
-                        pub = key.publickey().exportKey()
-                        privenc = b64encode(ARC4.new(password).encrypt(key.exportKey()))
-              
-                        realname = first_name + " " + last_name
-                        
-                        q = "INSERT INTO users (username, pwdhash, realname, privkeyenc, pubkey) VALUES (?,?,?,?,?)"
-                        query_db(q, [username, pwdhash, realname, privenc, pub])
-                        get_db().commit()
+	   if "gender" in request.form:
+               username = request.form["username"]
+               password = request.form["password"]
+               repeat_password = request.form["repeat_password"]
+               first_name = request.form["first_name"]
+               last_name = request.form["last_name"]
 
-                        session["logged_in"] = True
-                        session["user"] = username
-                        return redirect(url_for("show_profile"))
-                    else:
-                        error = "Passwords do not match."
-                else:
-                    error = "Password must only contain letters A-Z/a-z, numbers 0-9 and the following signs @#$%^&+=""Passwords do not match."
-            else:
-                error = "Username already taken."
+               gender = request.form["gender"]
+               accept = request.form["accept"]
+                
+
+               q = "SELECT username FROM users WHERE username = ?"
+               if not error and username and not query_db(q, [username], one = True):
+                   if password and re.match(r"[A-Za-z0-9@#$%^&+=]+", password):
+                       if repeat_password and password == repeat_password:
+                            
+                           pwdhash = SHA256.new(password).hexdigest()
+                            
+                           rnd = Random.new().read
+                           key = RSA.generate(1024, rnd)
+                           pub = key.publickey().exportKey()
+                           privenc = b64encode(ARC4.new(password).encrypt(key.exportKey()))
+                  
+                           realname = first_name + " " + last_name
+                            
+                           q = "INSERT INTO users (username, pwdhash, realname, gender, privkeyenc, pubkey) VALUES (?,?,?,?,?,?)"
+                           query_db(q, [username, pwdhash, realname, gender, privenc, pub])
+                           get_db().commit()
+
+                           session["logged_in"] = True
+                           session["user"] = username
+                           return redirect(url_for("show_profile"))
+                       else:
+                           error = "Passwords do not match."
+                   else:
+                       error = "Password must only contain letters A-Z/a-z, numbers 0-9 and the following signs @#$%^&+="
+               else:
+                   error = "Username already taken."
+           else:
+               error = "Please specify your gender."
        else:
-            error = "You have to accept the terms and conditions of Napier Public Key Server"
+           error = "You have to accept the terms and conditions of Napier Public Key Server"
 
    return render_template("register.html", error=error)
 
@@ -150,15 +164,16 @@ def logout():
 
 def get_user_info(username):
 
-    q = "SELECT realname, pubkey FROM users WHERE username = ?"
-    realname, pubkey = query_db(q, [username], one=True)
+    q = "SELECT realname, pubkey, gender FROM users WHERE username = ?"
+    realname, pubkey, gender = query_db(q, [username], one=True)
 
     q = "SELECT user2 FROM friends WHERE user1 = ?"
     res = query_db(q, [username])
     friends = [friend[0] for friend in res]
 
-    info = {"realname":realname, "pubkey":pubkey, "friends":friends}
+    info = {"realname":realname, "pubkey":pubkey, "friends":friends, "gender":gender}
 
+    print gender
     return info
 
 @app.route("/profile")
@@ -177,13 +192,13 @@ def show_profile():
 	
     info = get_user_info(user)
     
-    return render_template("profile.html", username=user, friends=info["friends"], realname=info["realname"], pubkey=info["pubkey"])
+    return render_template("profile.html", username=user, friends=info["friends"], realname=info["realname"], pubkey=info["pubkey"], gender=info["gender"])
 
 @app.route("/user/<username>")
 def show_user(username):
     info = get_user_info(username)
  
-    return render_template("profile.html", username=username, friends=info["friends"], realname=info["realname"], pubkey=info["pubkey"])
+    return render_template("profile.html", username=username, friends=info["friends"], realname=info["realname"], pubkey=info["pubkey"], gender=info["gender"])
 
 
 @app.route("/info")

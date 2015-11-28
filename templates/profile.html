@@ -4,7 +4,11 @@
 
     <div class="well">
 
-        <!--<img src="profile_dummy.jpg" class="img-circle" alt="ProfilePic">-->
+        {% if gender == "male" %}
+            <img src="{{ url_for("static", filename="Bob.png") }}" class="img-circle" alt="ProfilePic">
+        {% else %}
+            <img src="{{ url_for("static", filename="Alice.png") }}" class="img-circle" alt="ProfilePic">
+        {% endif %}
     </div>
 {% endblock %}
 {% block center %}
