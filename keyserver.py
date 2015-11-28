@@ -148,6 +148,19 @@ def logout():
     flash("You are now logged out")
     return redirect(url_for("login"))
 
+def get_user_info(username):
+
+    q = "SELECT realname, pubkey FROM users WHERE username = ?"
+    realname, pubkey = query_db(q, [username], one=True)
+
+    q = "SELECT user2 FROM friends WHERE user1 = ?"
+    res = query_db(q, [username])
+    friends = [friend[0] for friend in res]
+
+    info = {"realname":realname, "pubkey":pubkey, "friends":friends}
+
+    return info
+
 @app.route("/profile")
 def show_profile():
     if not session.get("logged_in"):
@@ -161,8 +174,16 @@ def show_profile():
     q = "SELECT user2 FROM friends WHERE user1 = ?"
     res = query_db(q, [user])
     friends = [friend[0] for friend in res]
+	
+    info = get_user_info(user)
+    
+    return render_template("profile.html", username=user, friends=info["friends"], realname=info["realname"], pubkey=info["pubkey"])
 
-    return render_template("profile.html", friends=friends, realname=realname, pubkey=pubkey);
+@app.route("/user/<username>")
+def show_user(username):
+    info = get_user_info(username)
+ 
+    return render_template("profile.html", username=username, friends=info["friends"], realname=info["realname"], pubkey=info["pubkey"])
 
 
 @app.route("/info")

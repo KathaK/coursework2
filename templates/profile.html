@@ -1,27 +1,31 @@
 {% extends "left-middle-right.html" %}
 
 {% block left %}
+
+    <div class="well">
+
+        <!--<img src="profile_dummy.jpg" class="img-circle" alt="ProfilePic">-->
+    </div>
 {% endblock %}
 {% block center %}
 
-<h2>{{ session.user }}</h2>
-<hr>
-<h4>{{ realname }}</h4>
-<hr>
-<div>{{ pubkey }}</div>
-<hr>
+    <h2>{{ username }}</h2>
+    <hr>
+    <h4>{{ realname }}</h4>
+    <hr>
+    <div>{{ pubkey }}</div>
+    <hr>
 
 
 {% endblock %}
 
 {% block right %}
     <div class="well">
-        <p>ADS</p>
-    </div>
-    <div class="well">
 	<p>Friends:</p>
-        {% for friend in friends %}
-        <ul>{{ friend }}</ul>
-        {% endfor %}        
+        <ul class="list-group">
+            {% for friend in friends %}
+            <li class="list-group-item"><a href="{{ url_for("show_user", username=friend) }}">{{ friend }}</a></li>
+            {% endfor %}
+        </ul>        
     </div>
 {% endblock %}
