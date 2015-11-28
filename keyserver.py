@@ -2,6 +2,8 @@ from flask import Flask, g, render_template, session, render_template, url_for, 
 import sqlite3
 from Crypto.Hash import SHA256
 from Crypto.Cipher import ARC4
+from Crypto.PublicKey import RSA
+from Crypto import Random
 from base64 import b64encode, b64decode
 
 app = Flask(__name__)
@@ -75,7 +77,40 @@ def mainpage():
 def register():
     error = None
     if request.method == "POST":
-        return "TODO"
+         if "accept" in request.form:
+            username = request.form["username"]
+            password = request.form["password"]
+            repeat_password = request.form["repeat_password"]
+            first_name = request.form["first_name"]
+            last_name = request.form["last_name"]
+        
+            accept = request.form["accept"]
+
+            q = "SELECT username FROM users WHERE username = ?"
+            if username and not query_db(q, [username], one = True):
+                if password and repeat_password and password == repeat_password:
+                    
+                    pwdhash = SHA256.new(password).hexdigest()
+                    
+                    rnd = Random.new().read
+                    key = RSA.generate(1024, rnd)
+                    pub = key.publickey().exportKey()
+                    privenc = b64encode(ARC4.new(password).encrypt(key.exportKey()))
+          
+                    realname = first_name + " " + last_name
+                    
+                    q = "INSERT INTO users (username, pwdhash, realname, privkeyenc, pubkey) VALUES (?,?,?,?,?)"
+                    query_db(q, [username, pwdhash, realname, privenc, pub])
+                    get_db().commit()
+
+                    session["logged_in"] = True
+                    return redirect(url_for("show_profile"))
+                else:
+                    error = "Passwords do not match."
+            else:
+                error = "Username already taken."
+        else:
+            error = "You have to accept the terms and conditions of Napier Public Key Server"
 
     return render_template("register.html", error=error)
 
