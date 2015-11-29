@@ -45,7 +45,7 @@
             <div class="panel panel-warning">
                 <div class="panel-heading"><h4>Send {{ username }} a message</h4></div>
 
-                <form class="form-horizontal" role="form">
+                <form class="form-horizontal" role="form" action="{{ url_for("send_message", username=username) }}" method="post">
                     <div class="panel-body">
                         <div class="form-group col-sm-10">
                             <textarea class="form-control" rows="6" id="message" name="message" placeholder="Enter secret message here!"></textarea>

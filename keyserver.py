@@ -239,9 +239,9 @@ def lock_profile():
 def unlock_profile():
     error = None
     username = session.get("user")
-    password = request.form["password"]
-
+   
     if request.method == "POST":
+	password = request.form["password"]
         pwdhash = query_db("SELECT pwdhash FROM users WHERE username = ?", [username], one=True)[0]
         if pwdhash and SHA256.new(password).hexdigest() == pwdhash:
             session["password"] = password
@@ -274,6 +274,25 @@ def add_friend(username):
     get_db().commit()
 
     return redirect(url_for("show_user", username=username))
+
+
+@app.route("/user/<username>/send", methods=["GET", "POST"])
+def send_message(username):
+  
+    if request.method == "POST":
+        message = request.form["message"]
+      
+
+        q = "SELECT pubkey FROM users WHERE username = ?"
+        pubkey_receiver = RSA.importKey(query_db(q, [username], one=True)[0])
+        message_enc = b64encode(pubkey_receiver.encrypt(message.encode("utf-8"), 77)[0])
+
+        q = "INSERT INTO messages (sender, receiver, content) VALUES (?,?,?)"
+        query_db(q, [session.get("user"), username, message_enc])
+        get_db().commit()
+        
+        flash("Message send.")
+    return redirect(request.referrer)
 
 @app.route("/search")
 def search():
