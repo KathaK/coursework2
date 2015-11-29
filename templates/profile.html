@@ -10,6 +10,19 @@
             <img src="{{ url_for("static", filename="Alice.png") }}" class="img-circle" alt="ProfilePic">
         {% endif %}
     </div>
+
+    <div class="well">
+        {% if session.logged_in %}
+            {% if username != session.user %}
+                {% if not already_friends %}
+                    <h5><a href ="{{ url_for("add_friend", username=username) }}"><span class="glyphicon glyphicon-heart"></span> Add as a friend</a><h5>
+                {% else %}
+                    <h4 class="text-success"><span class="glyphicon glyphicon-heart"></span> You are friends </a><span class="glyphicon glyphicon-heart"><h5>
+                {% endif %}
+            {% endif %}
+        {% endif %}
+    </div>
+
 {% endblock %}
 {% block center %}
 

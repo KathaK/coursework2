@@ -198,8 +198,24 @@ def show_profile():
 def show_user(username):
     info = get_user_info(username)
  
-    return render_template("profile.html", username=username, friends=info["friends"], realname=info["realname"], pubkey=info["pubkey"], gender=info["gender"])
+    already_friends = False
+    if session.get("logged_in"):
+        q = "SELECT user1, user2 FROM friends WHERE (user1 = ? AND user2 = ?)"
+        if query_db(q, [username, session.get("user")]):
+            already_friends = True
 
+    return render_template("profile.html", username=username, friends=info["friends"], realname=info["realname"], pubkey=info["pubkey"], gender=info["gender"], already_friends=already_friends)
+
+
+@app.route("/user/<username>/add")
+def add_friend(username):
+    user = session.get("user")
+    q = "INSERT INTO friends (user1, user2) VALUES (?,?)"
+    query_db(q, [user, username])
+    query_db(q, [username, user])
+    get_db().commit()
+
+    return redirect(url_for("show_user", username=username))
 
 @app.route("/info")
 def info():
