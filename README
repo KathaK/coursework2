@@ -1,1 +1,12 @@
 Napier Public Key Server
+
+Dear user of the web-app “Napier Public Key Server”,
+Please start the web-app by entering ./run_server.sh and afterwards please open your browser. Then enter the shown URL or localhost:5000.
+Now you know if you have to register or not. In case that you have already registered you can login. After register or logging in you can see your profile inclusive your friends. Here you can search users, go to your friend’s profile and write on their profile page a secure message or you can read your own massages. When you want to write an unknown user or a friend a message it is possible on his profile page.
+Each user can lock and unlock his messages on his own profile. When he has to leave his profile for a while, he needs to protect his privacy. With this function users can lock their profile. That means their messages are shown encrypted by clicking on the button. By entering the password again the messages are shown decrypted.
+Therefore it is possible to get friends by clicking at the text “♥Add as friend” under the profile picture. Then there arise another text “♥Your are friends♥”.
+With the button “My profile” on the navigation bar you come back to your profile. By clicking on the logo at the top of the page you are linked to the start page. In every situation the user can use the logout button at the navigation bar to get logged out.
+
+Have fun :)
+Kind regards,
+KathaK
