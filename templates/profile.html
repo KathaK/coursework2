@@ -26,11 +26,17 @@
 {% endblock %}
 {% block center %}
 
-    <h2>{{ username }}</h2>
+    <h1><span class="glyphicon glyphicon-triangle-right"> {{ username }}'s profile</h1>
     <hr>
-    <h4>{{ realname }}</h4>
+    <div class="panel panel-info">
+        <div class="panel-heading">Name</div>
+        <div class="panel-body">{{ realname }}</div>
+    </div>
     <hr>
-    <div>{{ pubkey }}</div>
+    <div class="panel panel-success">
+        <div class="panel-heading">Public Key</div>
+        <div class="panel-body">{{ pubkey }}</div>
+    </div>
     <hr>
 
 
@@ -38,7 +44,7 @@
 
 {% block right %}
     <div class="well">
-	<p>Friends:</p>
+	<p>{{ username }}'s friends:</p>
         <ul class="list-group">
             {% for friend in friends %}
             <li class="list-group-item"><a href="{{ url_for("show_user", username=friend) }}"><span class="glyphicon glyphicon-user"></span> {{ friend }}</a></li>
