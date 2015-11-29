@@ -77,7 +77,7 @@
                         <li class="active"><a href="{{ url_for("register") }}">Register</a></li>
                     {% else %}
                         <li><a href="{{ url_for("logout") }}"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
-                        
+                        <li><a href="{{ url_for("show_profile") }}"><span class="glyphicon glyphicon-home"></span> MyProfile</a></li>
                     {%endif %}
 
                 </ul>

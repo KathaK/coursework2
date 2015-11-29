@@ -28,7 +28,7 @@
 	<p>Friends:</p>
         <ul class="list-group">
             {% for friend in friends %}
-            <li class="list-group-item"><a href="{{ url_for("show_user", username=friend) }}">{{ friend }}</a></li>
+            <li class="list-group-item"><a href="{{ url_for("show_user", username=friend) }}"><span class="glyphicon glyphicon-user"></span> {{ friend }}</a></li>
             {% endfor %}
         </ul>        
     </div>
