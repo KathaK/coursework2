@@ -191,7 +191,7 @@ def get_user_info(username):
     q = "SELECT sender, content FROM messages WHERE receiver=?"
     messages = query_db(q, [username])
 
-    if not session.get("locked"):
+    if not session.get("locked") and username == session.get("user"):
         password = session.get("password")
         tmp = []
         for (user, message) in messages:
