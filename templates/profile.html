@@ -71,7 +71,21 @@
                         <a href="{{ url_for("lock_profile") }}" class="btn btn-success" role="button"><span class="glyphicon glyphicon-lock"> UNLOCKED</a>
                     {% endif %}
                 </div>
-                <div class="panel-body">Panel Content</div>
+                 <div class="panel-body">
+                    {% if session.locked %}
+                        {% if not messages %}
+                            You do not have any messages yet.
+                        {% else %}
+                            {% for message in messages %}
+                                <div class="panel panel-default">
+                                    <div class="panel-heading"><h5> From: <span class="glyphicon glyphicon-user"></span> {{ message[0] }}</h5></div>
+                                    <div class="panel-body">{{ message[1] }}</div>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% else %}
+                    {% endif %}
+                </div>
             </div>
 
         {% endif %}

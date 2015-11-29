@@ -65,6 +65,20 @@ def fill_db():
 	    query_db(q, [user2, user1])
         db.commit()
 
+	file = open("exampledata/messages.example")
+        for line in file:
+            line = line.rstrip("\n")
+            print(line.split("-"))
+            sender, receiver, message = line.split("-")
+
+            q = "SELECT pubkey FROM users WHERE username = ?"
+            pubkey_receiver = RSA.importKey(query_db(q, [receiver], one=True)[0])
+            message_enc = b64encode(pubkey_receiver.encrypt(message, 77)[0])
+
+            q = "INSERT INTO messages (sender, receiver, content) VALUES (?,?,?)"
+            query_db(q, [sender, receiver, message_enc])
+        db.commit()
+
 def init_db():
     print("Initializing database.")
     with app.app_context():
@@ -174,7 +188,10 @@ def get_user_info(username):
     res = query_db(q, [username])
     friends = [friend[0] for friend in res]
 
-    info = {"realname":realname, "pubkey":pubkey, "friends":friends, "gender":gender}
+    q = "SELECT sender, content FROM messages WHERE receiver=?"
+    messages = query_db(q, [username])
+
+    info = {"realname":realname, "pubkey":pubkey, "friends":friends, "gender":gender, "messages":messages}
 
     return info
 
@@ -194,7 +211,7 @@ def show_profile():
 	
     info = get_user_info(user)
     
-    return render_template("profile.html", username=user, friends=info["friends"], realname=info["realname"], pubkey=info["pubkey"], gender=info["gender"])
+    return render_template("profile.html", username=user, friends=info["friends"], realname=info["realname"], pubkey=info["pubkey"], gender=info["gender"], messages=info["messages"])
 
 @app.route("/profile/lock")
 def lock_profile():

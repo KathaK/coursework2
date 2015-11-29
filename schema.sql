@@ -15,3 +15,12 @@ create table friends (
     user2 text,
     PRIMARY KEY (user1, user2)
 );
+
+
+drop table if exists messages;
+create table messages (
+    id integer primary key autoincrement,
+    sender text,
+    receiver text,
+    content text
+);
