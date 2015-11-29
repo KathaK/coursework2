@@ -262,7 +262,7 @@ def show_user(username):
         if query_db(q, [username, session.get("user")]):
             already_friends = True
 
-    return render_template("profile.html", username=username, friends=info["friends"], realname=info["realname"], pubkey=info["pubkey"], gender=info["gender"], already_friends=already_friends)
+    return render_template("profile.html", username=username, friends=info["friends"], realname=info["realname"], pubkey=info["pubkey"], gender=info["gender"], already_friends=already_friends, messages=info["messages"])
 
 
 @app.route("/user/<username>/add")
