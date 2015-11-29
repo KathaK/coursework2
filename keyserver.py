@@ -201,7 +201,7 @@ def get_user_info(username):
             res = query_db(q, [username], one=True)[0]
             priv_receiver = ARC4.new(password).decrypt(b64decode(res))
             key = RSA.importKey(priv_receiver)
-            message = key.decrypt(content_enc)
+            message = key.decrypt(content_enc).decode("utf-8")
 
             tmp.append((user, message))
 
