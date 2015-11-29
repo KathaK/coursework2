@@ -119,6 +119,7 @@ def register():
 
                            session["logged_in"] = True
                            session["user"] = username
+			   session["locked"] = True
                            return redirect(url_for("show_profile"))
                        else:
                            error = "Passwords do not match."
@@ -146,6 +147,7 @@ def login():
             if pwdhash and SHA256.new(password).hexdigest() == pwdhash:
                 session["logged_in"] = True
                 session["user"] = username
+		session["locked"] = True
                 return redirect(url_for("show_profile"))
             else:
                 error = "Invalid user credentials!"
@@ -159,6 +161,7 @@ def login():
 def logout():
     session.pop("logged_in", None)
     session.pop("user", None)
+    session.pop("locked", None)
     flash("You are now logged out")
     return redirect(url_for("login"))
 
@@ -192,6 +195,17 @@ def show_profile():
     info = get_user_info(user)
     
     return render_template("profile.html", username=user, friends=info["friends"], realname=info["realname"], pubkey=info["pubkey"], gender=info["gender"])
+
+@app.route("/profile/lock")
+def lock_profile():
+    session["locked"] = True
+    return redirect(url_for("show_profile"))
+
+@app.route("/profile/unlock")
+def unlock_profile():
+    session["locked"] = False
+    return redirect(url_for("show_profile"))
+
 
 @app.route("/user/<username>")
 def show_user(username):
