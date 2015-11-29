@@ -191,6 +191,22 @@ def get_user_info(username):
     q = "SELECT sender, content FROM messages WHERE receiver=?"
     messages = query_db(q, [username])
 
+    if not session.get("locked"):
+        password = session.get("password")
+        tmp = []
+        for (user, message) in messages:
+            content_enc = b64decode(message)
+
+            q = "SELECT privkeyenc FROM users WHERE username = ?"
+            res = query_db(q, [username], one=True)[0]
+            priv_receiver = ARC4.new(password).decrypt(b64decode(res))
+            key = RSA.importKey(priv_receiver)
+            message = key.decrypt(content_enc)
+
+            tmp.append((user, message))
+
+        messages = tmp
+
     info = {"realname":realname, "pubkey":pubkey, "friends":friends, "gender":gender, "messages":messages}
 
     return info
@@ -216,11 +232,23 @@ def show_profile():
 @app.route("/profile/lock")
 def lock_profile():
     session["locked"] = True
+    session.pop("password", None)
     return redirect(url_for("show_profile"))
 
-@app.route("/profile/unlock")
+@app.route("/profile/unlock", methods=["GET", "POST"])
 def unlock_profile():
-    session["locked"] = False
+    error = None
+    username = session.get("user")
+    password = request.form["password"]
+
+    if request.method == "POST":
+        pwdhash = query_db("SELECT pwdhash FROM users WHERE username = ?", [username], one=True)[0]
+        if pwdhash and SHA256.new(password).hexdigest() == pwdhash:
+            session["password"] = password
+            session["locked"] = False
+        else:
+            flash("Invalid password.")
+
     return redirect(url_for("show_profile"))
 
 
