@@ -173,7 +173,6 @@ def get_user_info(username):
 
     info = {"realname":realname, "pubkey":pubkey, "friends":friends, "gender":gender}
 
-    print gender
     return info
 
 @app.route("/profile")
@@ -216,6 +215,22 @@ def add_friend(username):
     get_db().commit()
 
     return redirect(url_for("show_user", username=username))
+
+@app.route("/search")
+def search():
+    error = None
+    username = request.args["u"]
+
+    q = "SELECT username FROM users WHERE username = ?"
+    res = query_db(q, [username])
+    print res
+    if res:
+        return redirect(url_for("show_user", username=username))
+    else:
+        flash("This user does not exist.")
+    
+    return redirect(request.referrer)
+
 
 @app.route("/info")
 def info():
